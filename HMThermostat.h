@@ -23,7 +23,6 @@ class HMThermostat: public HMControl
     HMInterfaceButton plusButton;
     HMInterfaceButton minusButton;
     HMInterfaceButton boostButton;
-    HMInterfaceButton manuButton;
 };
 
 

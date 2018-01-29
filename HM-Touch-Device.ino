@@ -30,6 +30,7 @@
 #include "HMSwitch.h"
 #include "HMThermostat.h"
 #include "PageManager.h"
+#include "HMClock.h"
 
 // Pins for the ILI9341
 #define TFT_DC 15
@@ -116,12 +117,21 @@ void setup() {
   
   hmDeviceHandler.ccuIP = "192.168.178.8";
   pageManager.init(&tft,&ui);
+
+
+  HMClock * a_clock = new HMClock;
+  a_clock->init(&tft,&ui,&hmDeviceHandler);
+  a_clock->setRect(0,5,230,10);
+  pageManager.addControl(a_clock,1);
+
+
   
   HMThermostat * a_thermostat = new HMThermostat;
   a_thermostat->init(&tft,&ui,&hmDeviceHandler);
+  a_thermostat->ctrl_name = "Wohnzimmer";
   a_thermostat->adress = "LEQ0440411";
   a_thermostat->setRect(20,20,200,100);
-  pageManager.addControl(a_thermostat,1);
+  pageManager.addControl(a_thermostat,2);
 
 
   HMSwitch * a_switch = new HMSwitch;
@@ -129,7 +139,7 @@ void setup() {
   a_switch->adress = "LEQ0625187:1";
   a_switch->ctrl_name = "Licht";
   a_switch->setRect(20,140,90,80);
-  pageManager.addControl(a_switch,2);
+  pageManager.addControl(a_switch,3);
   
 
   a_switch = new HMSwitch;
@@ -137,9 +147,7 @@ void setup() {
   a_switch->adress = "JEQ0139883:1";
   a_switch->setRect(130,140,90,80);
   a_switch->ctrl_name = "Schreibt.";
-  pageManager.addControl(a_switch,3);
-  tft.fillScreen(ILI9341_BLACK);
-  updateStatus();
+  pageManager.addControl(a_switch,4);
   if (useProximity == true) {
     pinMode(PRX_Pin, INPUT_PULLUP);
   }
@@ -148,13 +156,15 @@ void setup() {
   for (int i=10; i<37; i++  ) {
     downloadFile("therm_" + String(i) +".bmp");
   }
-  SPIFFS.remove("/gfx/btnmanu.bmp");
   downloadFile("therm_plus.bmp");
   downloadFile("therm_minus.bmp");
   downloadFile("btnboost.bmp");
   downloadFile("btnboost_on.bmp");
   downloadFile("btnmanu.bmp");
   downloadFile("therm_off.bmp");
+
+  tft.fillScreen(ILI9341_BLACK);
+  updateStatus();
   pageManager.updatePage();
 }
 

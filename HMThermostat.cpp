@@ -9,11 +9,8 @@
 	 minusButton = HMInterfaceButton(130,140,90,80,"-",true);
    minusButton.setImage("/gfx/therm_minus.bmp",25,10);
    
-	 boostButton = HMInterfaceButton(20,240,90,80,"Boost");
-   boostButton.setImage("/gfx/btnboost.bmp",0,10);
-  
-	 manuButton = HMInterfaceButton(130,240,90,80,"Manu");
-   manuButton.setImage("/gfx/btnmanu.bmp",0,10);
+	 boostButton = HMInterfaceButton(73,240,94,80,"");
+   boostButton.setImage("/gfx/btnboost.bmp",0,0);
  }
 
  void HMThermostat::updateState() {
@@ -97,11 +94,6 @@
 	  return TOUCH_HANDLED;
 	}
 	
-	// Check Manu
- 	if (buttonContainsPoint(manuButton,point)) {
-	
-	}
-	
 	// Touch at textzone -> back
 	if (rectContainsPoint(x,y,w,h,point)) {
 		return TOUCH_HANDLED_BACKBUTTON;
@@ -122,10 +114,10 @@
  void HMThermostat::drawDetail() {
 	 // fill the complete display 
     Serial.println("Thermostat::DrawDetail");
-    tft->setTextColor(ILI9341_CYAN);
-    tft->setFont(&ArialRoundedMTBold_36);
-    ui->setTextColor(ILI9341_CYAN, ILI9341_BLACK);
-    ui->setTextAlignment(RIGHT);
+    tft->setTextColor(0xFFFF);
+    tft->setFont(&ArialRoundedMTBold_14);
+    ui->setTextColor(0xFFFF, ILI9341_BLACK);
+    ui->setTextAlignment(LEFT);
     
     if (n_settemp == -1) {
 	  	n_settemp = deviceHandler->getTargetTemperature(adress);
@@ -151,7 +143,6 @@
 	drawButton(minusButton,false);
 	
 	drawButton(boostButton,false);
-	drawButton(manuButton,false);
-	
+  ui->drawString(x, y+5,ctrl_name);
  }
 

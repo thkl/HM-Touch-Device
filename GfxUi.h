@@ -25,7 +25,7 @@ See more at http://blog.squix.ch
 #define _GFX_UI_H
 
 
-#define BUFFPIXEL 20
+#define BUFFPIXEL 30
 
 enum TextAlignment {
   LEFT, CENTER, RIGHT

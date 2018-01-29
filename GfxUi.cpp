@@ -230,6 +230,9 @@ void GfxUi::drawBmp(String filename, uint16_t x, uint16_t y) {
   if(!goodBmp) Serial.println(F("BMP format not recognized."));
 }
 
+
+
+
 // These read 16- and 32-bit types from the SD card file.
 // BMP data is stored little-endian, Arduino is little-endian too.
 // May need to reverse subscript order if porting elsewhere.
