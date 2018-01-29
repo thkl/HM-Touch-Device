@@ -34,7 +34,7 @@ class WebResource {
     WebResource();
     void downloadFile(String url, String filename, ProgressCallback progressCallback);
     void downloadFile(String url, String filename);
-
+    void downloadFile(String url, String filename, ProgressCallback progressCallback,String fingerprint);
 
   private:
     ESP8266WiFiMulti _wifiMulti;

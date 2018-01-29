@@ -4,7 +4,11 @@
  HMThermostat::HMThermostat() {
 	 haszDetail = true;
 	 plusButton = HMInterfaceButton(20,140,90,80,"+",true);
+   plusButton.setImage("/gfx/therm_plus.bmp",20,10);
+   
 	 minusButton = HMInterfaceButton(130,140,90,80,"-",true);
+   minusButton.setImage("/gfx/therm_minus.bmp",20,10);
+   
 	 boostButton = HMInterfaceButton(20,240,90,80,"Boost");
 	 manuButton = HMInterfaceButton(130,240,90,80,"Manu");
  }
@@ -55,8 +59,8 @@
  	// Check +
  	if (buttonContainsPoint(plusButton,point)) {
 	  drawButton(plusButton,true);
-	  if (n_settemp <= 30) {
-		  n_settemp = n_settemp + 0.5;
+	  if (n_settemp <= 36) {
+		  n_settemp = (int)n_settemp + 1;
 		  drawDetail();
 		  return TOUCH_HANDLED;
 	  }
@@ -65,10 +69,14 @@
  	// Check -
  	if (buttonContainsPoint(minusButton,point)) {
 	  drawButton(minusButton,true);
-	  if (n_settemp >= 4.5) {
-	  	n_settemp = n_settemp - 0.5;
+	  if (n_settemp >= 10) {
+	  	n_settemp = (int)n_settemp - 1;
 	  	drawDetail();
-		return TOUCH_HANDLED;
+	  	return TOUCH_HANDLED;
+	  } else {
+      n_settemp = 4.5;
+      drawDetail();
+      return TOUCH_HANDLED;
 	  }
  	}
  	
@@ -101,6 +109,8 @@
 
  void HMThermostat::willDissapear() {
  	if (n_settemp != -1) {
+    Serial.print("Thermostat::willDissapear send temp ");
+    Serial.println(n_settemp);
  		deviceHandler->setTargetTemperature(adress,n_settemp);
  		n_settemp = -1;
  	}
@@ -118,19 +128,22 @@
 	  	n_settemp = deviceHandler->getTargetTemperature(adress);
   	}
 
-    // Draw Arc
-    ui->drawBmp("/gfx/arc.bmp",x,y);
+    uint16_t xpos = ((w/2)-75)+x;
 
-    ui->drawString(x+(w/2)+50, y+110, String(n_settemp));
-
-	bool boost = deviceHandler->getBoost(adress);
-	if (boost) {
-		boostButton.foreColor = 0x0000;
-		boostButton.backColor = 0x07E0;
-	} else {
-		boostButton.foreColor = 0xFFFF;
-		boostButton.backColor = 0x0000;
-	}
+    if (n_settemp == 4.5) {
+      ui->drawBmp("/gfx/therm_off.bmp",xpos,y+10);
+    } else {
+      ui->drawBmp("/gfx/therm_" + String((int)n_settemp) + ".bmp",xpos,y+10);
+    }
+  
+  	bool boost = deviceHandler->getBoost(adress);
+	  if (boost) {
+		  boostButton.foreColor = 0x0000;
+		  boostButton.backColor = 0x07E0;
+	  } else {
+		  boostButton.foreColor = 0xFFFF;
+		  boostButton.backColor = 0x0000;
+	  }
 
 	// draw + / - Buttons
 	drawButton(plusButton,false);

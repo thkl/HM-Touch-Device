@@ -8,6 +8,10 @@ class HMInterfaceButton {
 		uint16_t w;
 		uint16_t h;
 		String caption;
+    String img_name;
+    uint16_t img_x;
+    uint16_t img_y;
+    
 		bool large = false;
   
 		uint16_t backColor = 0x0000; 
@@ -41,6 +45,11 @@ class HMInterfaceButton {
 				large = _large;
 		}
 
+    void setImage(String _imgName, uint16_t _xOffset, uint16_t _yOffset) {
+      img_name = _imgName;
+      img_x = _xOffset;
+      img_y = _yOffset;
+    }
   
  };
 

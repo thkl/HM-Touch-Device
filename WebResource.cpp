@@ -19,16 +19,23 @@ See more at http://blog.squix.ch
 */
 
 #include "WebResource.h"
+// GITHUB Fingerprint
+const char* fingerprint = "CCAA484866460E91532C9C7C232AB1744D299D33";
 
 WebResource::WebResource(){
   
 }
+
 
 void WebResource::downloadFile(String url, String filename) {
   downloadFile(url, filename, nullptr);
 }
 
 void WebResource::downloadFile(String url, String filename, ProgressCallback progressCallback) {
+   downloadFile(url,filename,progressCallback,"");
+}
+
+void WebResource::downloadFile(String url, String filename, ProgressCallback progressCallback,String fingerprint) {
     Serial.println("Downloading " + url + " and saving as " + filename);
 
     if (SPIFFS.exists(filename) == true) {
@@ -42,7 +49,11 @@ void WebResource::downloadFile(String url, String filename, ProgressCallback pro
         Serial.print("[HTTP] begin...\n");
 
         // configure server and url
-        http.begin(url);
+        if (fingerprint != "") {
+          http.begin(url,fingerprint);
+        } else {
+          http.begin(url);
+        }
 
         Serial.print("[HTTP] GET...\n");
         // start connection and send HTTP header
@@ -51,7 +62,7 @@ void WebResource::downloadFile(String url, String filename, ProgressCallback pro
             //SPIFFS.remove(filename);
             File f = SPIFFS.open(filename, "w+");
             if (!f) {
-                Serial.println("file open failed");
+                Serial.println("SPIFFS file open failed");
                 return;
             }
             // HTTP header has been send and Server response header has been handled

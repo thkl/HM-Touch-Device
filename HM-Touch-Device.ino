@@ -144,12 +144,30 @@ void setup() {
   if (useProximity == true) {
     pinMode(PRX_Pin, INPUT_PULLUP);
   }
-  SPIFFS.remove("/gfx/background.bmp");
-  webResource.downloadFile("https://raw.githubusercontent.com/thkl/HM-Touch-Device/master/images/background.bmp", "/gfx/background.bmp", _downloadCallback,"CCAA484866460E91532C9C7C232AB1744D299D33");
+  downloadFile("therm_off.bmp");
+
+  for (int i=10; i<37; i++  ) {
+    downloadFile("therm_" + String(i) +".bmp");
+  }
+  downloadFile("therm_plus.bmp");
+  downloadFile("therm_minus.bmp");
 }
 
 void downloadCallback(String filename, int16_t bytesDownloaded, int16_t bytesTotal) {
-  
+  int percentage = 100 * bytesDownloaded / bytesTotal;
+  if (percentage == 0) {
+    ui.drawString(120, 160, filename);
+  }
+  if (percentage % 5 == 0) {
+    ui.setTextAlignment(CENTER);
+    ui.setTextColor(ILI9341_CYAN, ILI9341_BLACK);
+    ui.drawProgressBar(10, 165, 240 - 20, 15, percentage, ILI9341_WHITE, ILI9341_BLUE);
+  }
+
+}
+
+void downloadFile(String fileName) {
+  webResource.downloadFile("https://raw.githubusercontent.com/thkl/HM-Touch-Device/master/images/" + fileName, "/gfx/" + fileName, _downloadCallback,"CCAA484866460E91532C9C7C232AB1744D299D33");
 }
 
 void screenManagerCheck(){

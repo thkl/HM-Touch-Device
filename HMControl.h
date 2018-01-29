@@ -41,8 +41,9 @@ class HMControl {
     void drawButton(HMInterfaceButton _ifb, bool pressed);
     
     bool touched(TS_Point point);
-	bool rectContainsPoint(uint16_t _x, uint16_t _y, uint16_t _w, uint16_t _h,TS_Point point);
-	bool buttonContainsPoint(HMInterfaceButton _ifb , TS_Point point);
+	  
+	  bool rectContainsPoint(uint16_t _x, uint16_t _y, uint16_t _w, uint16_t _h,TS_Point point);
+	  bool buttonContainsPoint(HMInterfaceButton _ifb , TS_Point point);
 	
     virtual byte handleTouch(TS_Point point){};
     virtual void drawDetail(){};
