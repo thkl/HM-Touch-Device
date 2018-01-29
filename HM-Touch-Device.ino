@@ -144,8 +144,8 @@ void setup() {
   if (useProximity == true) {
     pinMode(PRX_Pin, INPUT_PULLUP);
   }
-
-  webResource.downloadFile("http://console.ksquare.de/hc_touch/arc.bmp", "/gfx/arc.bmp", _downloadCallback);
+  SPIFFS.remove("/gfx/background.bmp");
+  webResource.downloadFile("https://raw.githubusercontent.com/thkl/HM-Touch-Device/master/images/background.bmp", "/gfx/background.bmp", _downloadCallback,"CCAA484866460E91532C9C7C232AB1744D299D33");
 }
 
 void downloadCallback(String filename, int16_t bytesDownloaded, int16_t bytesTotal) {
