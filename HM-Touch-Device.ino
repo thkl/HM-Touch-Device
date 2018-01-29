@@ -139,18 +139,23 @@ void setup() {
   a_switch->ctrl_name = "Schreibt.";
   pageManager.addControl(a_switch,3);
   tft.fillScreen(ILI9341_BLACK);
-  
   updateStatus();
   if (useProximity == true) {
     pinMode(PRX_Pin, INPUT_PULLUP);
   }
-  downloadFile("therm_off.bmp");
+  
 
   for (int i=10; i<37; i++  ) {
     downloadFile("therm_" + String(i) +".bmp");
   }
+  SPIFFS.remove("/gfx/btnmanu.bmp");
   downloadFile("therm_plus.bmp");
   downloadFile("therm_minus.bmp");
+  downloadFile("btnboost.bmp");
+  downloadFile("btnboost_on.bmp");
+  downloadFile("btnmanu.bmp");
+  downloadFile("therm_off.bmp");
+  pageManager.updatePage();
 }
 
 void downloadCallback(String filename, int16_t bytesDownloaded, int16_t bytesTotal) {

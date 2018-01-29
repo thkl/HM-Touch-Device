@@ -4,13 +4,16 @@
  HMThermostat::HMThermostat() {
 	 haszDetail = true;
 	 plusButton = HMInterfaceButton(20,140,90,80,"+",true);
-   plusButton.setImage("/gfx/therm_plus.bmp",20,10);
+   plusButton.setImage("/gfx/therm_plus.bmp",25,10);
    
 	 minusButton = HMInterfaceButton(130,140,90,80,"-",true);
-   minusButton.setImage("/gfx/therm_minus.bmp",20,10);
+   minusButton.setImage("/gfx/therm_minus.bmp",25,10);
    
 	 boostButton = HMInterfaceButton(20,240,90,80,"Boost");
+   boostButton.setImage("/gfx/btnboost.bmp",0,10);
+  
 	 manuButton = HMInterfaceButton(130,240,90,80,"Manu");
+   manuButton.setImage("/gfx/btnmanu.bmp",0,10);
  }
 
  void HMThermostat::updateState() {
@@ -138,11 +141,9 @@
   
   	bool boost = deviceHandler->getBoost(adress);
 	  if (boost) {
-		  boostButton.foreColor = 0x0000;
-		  boostButton.backColor = 0x07E0;
+      boostButton.setImage("/gfx/btnboost_on.bmp",0,10);
 	  } else {
-		  boostButton.foreColor = 0xFFFF;
-		  boostButton.backColor = 0x0000;
+      boostButton.setImage("/gfx/btnboost.bmp",0,10);
 	  }
 
 	// draw + / - Buttons
