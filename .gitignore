@@ -1,0 +1,8 @@
+.pioenvs
+.piolibdeps
+.clang_complete
+.gcc-flags.json
+src/images/src/btnboost.png
+src/images/src/btnboost.pxm
+src/images/src/btnboost_on.png
+src/images/src/btnmanu.png

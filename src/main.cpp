@@ -1,16 +1,11 @@
-
 #pragma once
-
+#include <Arduino.h>
 #include <SPI.h>
 #include <Wire.h>      // this is needed even tho we aren't using it
+#include <EEPROM.h>
 #include <Adafruit_GFX.h>    // Core graphics library
 #include <Adafruit_ILI9341.h> // Hardware-specific library
 #include <Adafruit_STMPE610.h>
-
-// Additional UI functions
-#include "GfxUi.h"
-
-// Fonts created by http://oleddisplay.squix.ch/
 
 #include <ESP8266WebServer.h>
 #include <ESP8266WiFi.h>
@@ -18,7 +13,6 @@
 #include <ESP8266mDNS.h>
 #include "WebResource.h"
 
-// Helps with connecting to internet
 #include <WiFiManager.h>
 
 #define HOSTNAME "ESP8266-OTA-"
@@ -52,9 +46,9 @@ Adafruit_STMPE610 ts = Adafruit_STMPE610(STMPE_CS);
 WebResource webResource;
 
 GfxUi ui = GfxUi(&tft);
-boolean   DEEP_SLEEP = false; 
-int       AWAKE_TIME = 5;  
-const int UPDATE_INTERVAL_SECS = 30; 
+boolean   DEEP_SLEEP = false;
+int       AWAKE_TIME = 5;
+const int UPDATE_INTERVAL_SECS = 30;
 TS_Point  lastPoint;
 boolean   wasTouched;
 uint16_t voltage;
@@ -74,6 +68,9 @@ void updateData();
 void drawProgress(uint8_t percentage, String text);
 void drawSeparator(uint16_t y);
 void downloadCallback(String filename, int16_t bytesDownloaded, int16_t bytesTotal);
+void downloadFile(String fileName);
+void updateStatus();
+
 ProgressCallback _downloadCallback = downloadCallback;
 
 void setup() {
@@ -89,7 +86,7 @@ void setup() {
   ts.writeRegister8(STMPE_GPIO_ALT_FUNCT, _BV(2));
   // backlight on
   ts.writeRegister8(STMPE_GPIO_SET_PIN, _BV(2));
-   
+
   tft.begin();
   tft.fillScreen(ILI9341_BLACK);
   tft.setFont(&ArialRoundedMTBold_14);
@@ -114,18 +111,17 @@ void setup() {
   ArduinoOTA.setHostname((const char *)hostname.c_str());
   ArduinoOTA.begin();
   SPIFFS.begin();
-  
+
   hmDeviceHandler.ccuIP = "192.168.178.8";
   pageManager.init(&tft,&ui);
 
-
   HMClock * a_clock = new HMClock;
   a_clock->init(&tft,&ui,&hmDeviceHandler);
-  a_clock->setRect(0,5,230,10);
+  a_clock->setRect(0,10,230,10);
   pageManager.addControl(a_clock,1);
 
 
-  
+
   HMThermostat * a_thermostat = new HMThermostat;
   a_thermostat->init(&tft,&ui,&hmDeviceHandler);
   a_thermostat->ctrl_name = "Wohnzimmer";
@@ -140,7 +136,7 @@ void setup() {
   a_switch->ctrl_name = "Licht";
   a_switch->setRect(20,140,90,80);
   pageManager.addControl(a_switch,3);
-  
+
 
   a_switch = new HMSwitch;
   a_switch->init(&tft,&ui,&hmDeviceHandler);
@@ -151,7 +147,7 @@ void setup() {
   if (useProximity == true) {
     pinMode(PRX_Pin, INPUT_PULLUP);
   }
-  
+
 
   for (int i=10; i<37; i++  ) {
     downloadFile("therm_" + String(i) +".bmp");
@@ -172,6 +168,7 @@ void downloadCallback(String filename, int16_t bytesDownloaded, int16_t bytesTot
   int percentage = 100 * bytesDownloaded / bytesTotal;
   if (percentage == 0) {
     ui.drawString(120, 160, filename);
+    ui.drawProgressBar(10, 165, 240 - 20, 15, 0, ILI9341_WHITE, ILI9341_BLUE);
   }
   if (percentage % 5 == 0) {
     ui.setTextAlignment(CENTER);
@@ -187,7 +184,7 @@ void downloadFile(String fileName) {
 
 void screenManagerCheck(){
 
-	// Pin is Low 
+	// Pin is Low
    if ((SCR_OFF == true) && (digitalRead(PRX_Pin) == 0)) {
 	   // Switch ON
 	   Serial.println("Switch On");
@@ -196,7 +193,7 @@ void screenManagerCheck(){
 		 ts.writeRegister8(STMPE_GPIO_ALT_FUNCT, _BV(2));
 		 // backlight on
 		 ts.writeRegister8(STMPE_GPIO_SET_PIN, _BV(2));
-	     // Run a Query 
+	     // Run a Query
 	     pageManager.updatePage();
 		 SCR_OFF = false;
 		 lastCheck = millis();
@@ -204,22 +201,22 @@ void screenManagerCheck(){
 
 
    if ((SCR_OFF==false) && (millis() - lastCheck > 1000 * UPDATE_INTERVAL_SECS)) {
-		ts.writeRegister8(STMPE_GPIO_CLR_PIN, _BV(2)); // backlight off  
+		ts.writeRegister8(STMPE_GPIO_CLR_PIN, _BV(2)); // backlight off
 		ts.writeRegister8(STMPE_INT_STA, 0xFF);
 		SCR_OFF = true;
-		// Jump Back 
+		// Jump Back
 		pageManager.jumpBack();
 	}
-  
+
 }
 
 void loop() {
   if (useProximity == true) {
 	    screenManagerCheck();
   }
-	
+
   if (! ts.bufferEmpty()) {
-      
+
       if (ts.touched()) {
         lastPoint = ts.getPoint();
         wasTouched = true;
@@ -227,15 +224,15 @@ void loop() {
         lastPoint.y = map(lastPoint.y, TS_MINY, TS_MAXY, 0, tft.height());
       }
     }
-    
+
     if ((!ts.touched()) && (wasTouched)) {
          Serial.print("X = "); Serial.print(lastPoint.x);
          Serial.print("\tY = "); Serial.print(lastPoint.y);
-         Serial.print("\tPressure = "); Serial.println(lastPoint.z); 
+         Serial.print("\tPressure = "); Serial.println(lastPoint.z);
          pageManager.touched(lastPoint);
 		 wasTouched = false;
     }
-    
+
     if ((millis() - lastUpdate > 1000 * UPDATE_INTERVAL_SECS)) {
 	   updateStatus();
     }
@@ -243,8 +240,8 @@ void loop() {
     if ((pageManager.currentPage != 0) && (millis() - pageManager.lastDetailPageUpdate > 1000 * 20)) {
       pageManager.jumpBack();
     }
-    
-    
+
+
 }
 
 void updateStatus() {
@@ -285,5 +282,3 @@ void drawProgress(uint8_t percentage, String text) {
 void drawSeparator(uint16_t y) {
   tft.drawFastHLine(10, y, 240 - 2 * 10, 0x4228);
 }
-
-
