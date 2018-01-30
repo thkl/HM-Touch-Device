@@ -10,11 +10,12 @@ HMClock::HMClock() {
 
 
  void HMClock::updateState() {
- 	  timeClient.updateTime();
+ 	  	timeClient.updateTime();
+			tft->setTextColor(0xFFFF);
       tft->setFont(&Dialog_plain_12);
       ui->setTextAlignment(RIGHT);
       String time = timeClient.getHours() + ":" + timeClient.getMinutes();
-	  ui->drawString(x+w, y+ (h/2), time);
+	  	ui->drawString(x+w, y+ (h/2), time);
       lastUpdate = millis();
  }
 
@@ -26,4 +27,3 @@ HMClock::HMClock() {
  void HMClock::drawDetail() {
 
  }
-
