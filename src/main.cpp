@@ -1,4 +1,4 @@
-#pragma once
+
 #include <Arduino.h>
 #include <SPI.h>
 #include <Wire.h>      // this is needed even tho we aren't using it
@@ -11,20 +11,18 @@
 #include <ESP8266WiFi.h>
 #include <ArduinoOTA.h>
 #include <ESP8266mDNS.h>
-#include "WebResource.h"
 
 #include <WiFiManager.h>
 
-#define HOSTNAME "ESP8266-OTA-"
+#define HOSTNAME "HM_TOUCH-OTA-"
 #define useProximity false
 
 
 #include "HMControl.h"
-#include "HMDimmer.h"
-#include "HMSwitch.h"
-#include "HMThermostat.h"
+
 #include "PageManager.h"
-#include "HMClock.h"
+#include "ConfigurationServer.h"
+#include "WebResource.h"
 
 // Pins for the ILI9341
 #define TFT_DC 15
@@ -46,12 +44,16 @@ Adafruit_STMPE610 ts = Adafruit_STMPE610(STMPE_CS);
 WebResource webResource;
 
 GfxUi ui = GfxUi(&tft);
+
 boolean   DEEP_SLEEP = false;
 int       AWAKE_TIME = 5;
 const int UPDATE_INTERVAL_SECS = 30;
 TS_Point  lastPoint;
 boolean   wasTouched;
 uint16_t voltage;
+const char* host = "hm_touch-webupdate";
+
+
 long lastUpdate = millis();
 long lastCheck = millis();
 boolean PRX_ON = false;
@@ -62,14 +64,16 @@ boolean SCR_OFF = false;
 WiFiManager wifiManager;
 HMDeviceHandler hmDeviceHandler;
 PageManager pageManager;
+ConfigurationServer configurationserver;
 
 void configModeCallback (WiFiManager *myWiFiManager);
 void updateData();
 void drawProgress(uint8_t percentage, String text);
 void drawSeparator(uint16_t y);
-void downloadCallback(String filename, int16_t bytesDownloaded, int16_t bytesTotal);
+void downloadCallback(String filename, int bytesDownloaded, int bytesTotal);
 void downloadFile(String fileName);
 void updateStatus();
+
 
 ProgressCallback _downloadCallback = downloadCallback;
 
@@ -111,39 +115,23 @@ void setup() {
   ArduinoOTA.setHostname((const char *)hostname.c_str());
   ArduinoOTA.begin();
   SPIFFS.begin();
+  MDNS.begin(host);
 
-  hmDeviceHandler.ccuIP = "192.168.178.8";
-  pageManager.init(&tft,&ui);
+  configurationserver.init();
+  configurationserver.wifiManager = &wifiManager;
 
-  HMClock * a_clock = new HMClock;
-  a_clock->init(&tft,&ui,&hmDeviceHandler);
-  a_clock->setRect(0,10,230,10);
-  pageManager.addControl(a_clock,1);
+  MDNS.addService("http", "tcp", 80);
 
+  if (configurationserver.loadConfigFile("config.json",false) == true) {
+    Serial.print("CCU Ip is:");
+    Serial.print(configurationserver.ccuIP);
+    hmDeviceHandler.ccuIP = configurationserver.ccuIP;
+    pageManager.init(&tft,&ui);
+    Serial.print("Items in Config :");
+    int numItems = configurationserver.numberOfItems;
+    Serial.print(numItems);
+    configurationserver.initControls(&tft,&ui,&hmDeviceHandler,&pageManager);
 
-
-  HMThermostat * a_thermostat = new HMThermostat;
-  a_thermostat->init(&tft,&ui,&hmDeviceHandler);
-  a_thermostat->ctrl_name = "Wohnzimmer";
-  a_thermostat->adress = "LEQ0440411";
-  a_thermostat->setRect(20,20,200,100);
-  pageManager.addControl(a_thermostat,2);
-
-
-  HMSwitch * a_switch = new HMSwitch;
-  a_switch->init(&tft,&ui,&hmDeviceHandler);
-  a_switch->adress = "LEQ0625187:1";
-  a_switch->ctrl_name = "Licht";
-  a_switch->setRect(20,140,90,80);
-  pageManager.addControl(a_switch,3);
-
-
-  a_switch = new HMSwitch;
-  a_switch->init(&tft,&ui,&hmDeviceHandler);
-  a_switch->adress = "JEQ0139883:1";
-  a_switch->setRect(130,140,90,80);
-  a_switch->ctrl_name = "Schreibt.";
-  pageManager.addControl(a_switch,4);
   if (useProximity == true) {
     pinMode(PRX_Pin, INPUT_PULLUP);
   }
@@ -152,8 +140,8 @@ void setup() {
   for (int i=10; i<37; i++  ) {
     downloadFile("therm_" + String(i) +".bmp");
   }
-  downloadFile("therm_plus.bmp");
-  downloadFile("therm_minus.bmp");
+  downloadFile("btnplus.bmp");
+  downloadFile("btnminus.bmp");
   downloadFile("btnboost.bmp");
   downloadFile("btnboost_on.bmp");
   downloadFile("btnmanu.bmp");
@@ -162,12 +150,22 @@ void setup() {
   tft.fillScreen(ILI9341_BLACK);
   updateStatus();
   pageManager.updatePage();
+} else {
+  tft.fillScreen(ILI9341_BLACK);
+  ui.setTextAlignment(CENTER);
+  tft.setFont(&ArialRoundedMTBold_14);
+  tft.setTextColor(ILI9341_CYAN);
+  ui.drawString(120, 28, "Missing configuration");
+  ui.drawString(120, 45, "Please upload via WebIF");
+}
 }
 
-void downloadCallback(String filename, int16_t bytesDownloaded, int16_t bytesTotal) {
+
+void downloadCallback(String filename, int bytesDownloaded, int bytesTotal) {
   int percentage = 100 * bytesDownloaded / bytesTotal;
   if (percentage == 0) {
-    ui.drawString(120, 160, filename);
+    tft.fillRect(20,160,300,20,0x00000);
+    ui.drawString(20, 160, filename);
     ui.drawProgressBar(10, 165, 240 - 20, 15, 0, ILI9341_WHITE, ILI9341_BLUE);
   }
   if (percentage % 5 == 0) {
@@ -179,7 +177,8 @@ void downloadCallback(String filename, int16_t bytesDownloaded, int16_t bytesTot
 }
 
 void downloadFile(String fileName) {
-  webResource.downloadFile("https://raw.githubusercontent.com/thkl/HM-Touch-Device/master/images/" + fileName, "/gfx/" + fileName, _downloadCallback,"CCAA484866460E91532C9C7C232AB1744D299D33");
+  ui.drawString(120, 45, "Downloading ...");
+  webResource.downloadFile("https://raw.githubusercontent.com/thkl/HM-Touch-Device/master/src/images/" + fileName, "/gfx/" + fileName, _downloadCallback,"CCAA484866460E91532C9C7C232AB1744D299D33");
 }
 
 void screenManagerCheck(){
@@ -211,6 +210,8 @@ void screenManagerCheck(){
 }
 
 void loop() {
+configurationserver.handle();
+
   if (useProximity == true) {
 	    screenManagerCheck();
   }
@@ -271,6 +272,7 @@ void configModeCallback (WiFiManager *myWiFiManager) {
 
 // Progress bar helper
 void drawProgress(uint8_t percentage, String text) {
+
   ui.setTextAlignment(CENTER);
   ui.setTextColor(ILI9341_CYAN, ILI9341_BLACK);
   tft.fillRect(0, 140, 240, 45, ILI9341_BLACK);

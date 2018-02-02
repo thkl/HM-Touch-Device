@@ -27,7 +27,7 @@ See more at http://blog.squix.ch
 #ifndef _WEBRESOURCE_H
 #define _WEBRESOURCE_H
 
-typedef void (*ProgressCallback)(String fileName, int16_t bytesDownloaded, int16_t bytesTotal);
+typedef void (*ProgressCallback)(String fileName, int bytesDownloaded, int bytesTotal);
 
 class WebResource {
   public:
@@ -42,4 +42,3 @@ class WebResource {
 };
 
 #endif
-

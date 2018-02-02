@@ -1,8 +1,4 @@
 # HM-Touch-Device
 
-Install libs :
-
-pio lib install "WifiManager"
-pio lib install "Adafruit STMPE610"
-pio lib install "Adafruit GFX Library"
-pio lib install "Adafruit ILI9341"
+Todo:
+import config from SD if there is no file in SPIFFS

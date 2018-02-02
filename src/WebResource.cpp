@@ -23,7 +23,7 @@ See more at http://blog.squix.ch
 const char* fingerprint = "CCAA484866460E91532C9C7C232AB1744D299D33";
 
 WebResource::WebResource(){
-  
+
 }
 
 
@@ -42,6 +42,7 @@ void WebResource::downloadFile(String url, String filename, ProgressCallback pro
       Serial.println("File already exists. Skipping");
       return;
     }
+
     // wait for WiFi connection
     if((_wifiMulti.run() == WL_CONNECTED)) {
         HTTPClient http;
@@ -59,17 +60,19 @@ void WebResource::downloadFile(String url, String filename, ProgressCallback pro
         // start connection and send HTTP header
         int httpCode = http.GET();
         if(httpCode > 0) {
-            //SPIFFS.remove(filename);
-            File f = SPIFFS.open(filename, "w+");
-            if (!f) {
-                Serial.println("SPIFFS file open failed");
-                return;
-            }
+
             // HTTP header has been send and Server response header has been handled
             Serial.printf("[HTTP] GET... code: %d\n", httpCode);
 
+            File f = SPIFFS.open(filename, "w+");
+            if (!f) {
+              Serial.println("SPIFFS file open failed");
+              return;
+            }
+
             // file found at server
             if(httpCode == HTTP_CODE_OK) {
+                //SPIFFS.remove(filename);
 
                 // get lenght of document (is -1 when Server sends no Content-Length header)
                 int total = http.getSize();
@@ -103,13 +106,12 @@ void WebResource::downloadFile(String url, String filename, ProgressCallback pro
 
                 Serial.println();
                 Serial.print("[HTTP] connection closed or file end.\n");
-
+                f.close();
             }
-            f.close();
         } else {
             Serial.printf("[HTTP] GET... failed, error: %s\n", http.errorToString(httpCode).c_str());
         }
-        
+
         http.end();
     }
 }

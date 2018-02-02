@@ -6,7 +6,7 @@
 	}
 
 	bool PageManager::touched(TS_Point point) {
-		
+
 		for (int i=0; i<deviceCount; i++  ) {
 	    	if (currentPage == 0) {
 		    	Serial.println("Page Manager Main Page");
@@ -16,25 +16,25 @@
 						Serial.print(devices[i]->ctrl_name);
 						Serial.print("haz details. jump to page ");
 						Serial.println(devices[i]->onPage);
-						
+
 			    		currentPage = devices[i]->onPage;
 			    		updatePage();
 					} else {
 						// else send touch to control
 						Serial.print("Page Manager Single Touch Control - send touch to");
 						Serial.println(devices[i]->ctrl_name);
-			    		devices[i]->handleTouch(point); 
+			    		devices[i]->handleTouch(point);
 			    	}
 			    }
 			} else if (currentPage == devices[i]->onPage) {
 				currentControl = i;
 				byte th = devices[currentControl]->handleTouch(point);
-				
+
 				if (th == TOUCH_HANDLED) {
 					// If the Devices has handled the touch reset the last Update
 				 	lastDetailPageUpdate = millis();
-				}; 
-				
+				};
+
 				if (th == TOUCH_HANDLED_BACKBUTTON) {
 					devices[currentControl]->willDissapear();
 					jumpBack();
@@ -42,10 +42,10 @@
 			}
 		}
 	}
-    
+
     void PageManager::jumpBack(){
 	    if (currentPage != 0) {
-		    
+
 		    if (currentControl != -1) {
 			    // notify current control
 			    devices[currentControl]->willDissapear();
@@ -61,15 +61,18 @@
 			updatePage();
     	}
     }
-    
+
     void PageManager::updatePage(){
 	    Serial.println("Update Page called");
+			Serial.print(deviceCount);
+			Serial.print("devices.");
 	    for (int i=0; i<deviceCount; i++  ) {
 	    	if (currentPage == 0) {
-		    	Serial.println("Main Page");
+		    	Serial.print("Main Page");
+					Serial.println(devices[i]->ctrl_name);
 		    	devices[i]->updateState();
 		    }
-		    
+
 		    if (currentPage == devices[i]->onPage) {
 			    Serial.print("Detail Page ");
 			    Serial.println(currentPage);
@@ -79,13 +82,16 @@
 		    }
 		}
     }
-    
-    void PageManager::addControl(HMControl *control, int detailPageId) {
-	    devices[deviceCount] = control;
-	    control->onPage = detailPageId;
+
+  void PageManager::addControl(HMControl *control, int detailPageId) {
+		Serial.println("PageManager::addControl");
+	  devices[deviceCount] = control;
+		Serial.println("setDetail ID");
+	  control->onPage = detailPageId;
+		Serial.println("Inc Device deviceCount");
 		deviceCount++;
 	}
-	
+
 	void PageManager::updateVoltage(uint16_t _voltage) {
 		if (voltage!=_voltage) {
 		tft->setTextColor(ILI9341_CYAN);
@@ -96,4 +102,3 @@
 		voltage = _voltage;
 		}
 	}
-

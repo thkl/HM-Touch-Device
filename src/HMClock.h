@@ -10,7 +10,5 @@ class HMClock: public HMControl {
     void drawDetail();
     uint8_t handleTouch(TS_Point point);
    private:
-    TimeClient timeClient = TimeClient(-1);
-};  
-
-
+    TimeClient timeClient = TimeClient(+1);
+};

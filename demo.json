@@ -1,0 +1,16 @@
+{
+	"ccu_ip":"192.168.178.8",
+	"items": [
+		{
+			"name":"Clock",
+			"type":"HMClock",
+			"rect":[0,10,230,10]
+		},
+		{
+			"name":"Wohnzimmer",
+			"adress":"LEQ0440411",
+			"type":"HMThermostat",
+			"rect":[20,20,200,100]
+		}
+	]
+}
