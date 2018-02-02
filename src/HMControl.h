@@ -6,6 +6,8 @@
 #include "HMDeviceHandler.h"
 #include "ArialRoundedMTBold_14.h"
 #include "ArialRoundedMTBold_36.h"
+#include "DejaVuSans.h"
+
 #include "GfxUi.h"
 #include "HMInterfaceButton.h"
 
@@ -26,13 +28,14 @@ class HMControl {
     long lastUpdate = 0;
     uint8_t onPage = 0;
     bool haszDetail = false;
-
+    int fontSize;
 
     HMDeviceHandler * deviceHandler;
     Adafruit_ILI9341 * tft;
     GfxUi * ui;
 
     virtual void updateState();
+    virtual void applyFont();
     virtual ~HMControl () { Serial.println ("HMControl destructor."); }
 
     void init(Adafruit_ILI9341 * _tft, GfxUi * _ui,HMDeviceHandler * _deviceHandler);

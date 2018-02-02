@@ -9,19 +9,26 @@
 
 #define tmpConfigFile "/tmp_config.json"
 #define bufferSize 2048
+const char HTTP_CONFIG_OPTIONS[] PROGMEM  = "<form action=\"/resetwifi\"method=\"get\"><button>Reset WiFi</button></form><br/><form action=\"/resetdevice\"method=\"get\"><button>Reboot</button></form><br/><form action=\"/config\"method=\"get\"><button>Upload Config</button></form><br/><form action=\"/cleancache\"method=\"post\"><button>Clean Cache</button></form><br /><br /><form action=\"/sysreset\"method=\"post\"><button>Reset to default</button></form>";
+const char HTTP_CONFIG_HOME[] PROGMEM  = "<form action=\"/\"method=\"get\"><button>Home</button></form>";
+const char HTTP_CONFIG_UPLOAD[] PROGMEM  = "<form method=\"post\" enctype=\"multipart/form-data\"><input type=\"file\" name=\"name\"><input class=\"button\" type=\"submit\" value=\"Upload\"></form>";
+
 
 File fsUploadFile;
 
 void ConfigurationServer::init() {
   httpUpdater.setup(&httpServer, update_path, update_username, update_password);
   httpServer.begin();
-  httpServer.on("/",  [this](){ handleRoot(); });
-  httpServer.on("/resetwifi",  [this](){ wifiManager->resetSettings(); handleReset(); });
+  httpServer.on("/",  [this](){ sendHTMLResponseMessage(FPSTR(HTTP_CONFIG_OPTIONS));});
+  httpServer.on("/resetwifi",  [this](){ wifiManager->resetSettings(); handleReset();});
   httpServer.on("/resetdevice", [this](){ handleReset(); });
-  httpServer.on("/config", HTTP_GET, [this](){handleCondigForm();});
+  httpServer.on("/config", HTTP_GET, [this](){sendHTMLResponseMessage(FPSTR(HTTP_CONFIG_UPLOAD));});
   httpServer.on("/config",HTTP_POST, [this]{handleConfigUpload();});
   httpServer.on("/sysreset", [this]{handleSysReset();});
-  httpServer.onNotFound ( [this](){ handleNotFound();});
+  httpServer.on("/cleancache", [this]{handleCacheCleaning();});
+  httpServer.on("/fail", [this]{sendHTMLResponseMessage("Sorry, the last operation failed. :(");});
+  httpServer.on("/success", [this]{sendHTMLResponseMessage("Great success.");});
+  httpServer.onNotFound ( [this](){ sendHTMLResponseMessage("File not found.");});
 
   Serial.println("Mounting FS...");
 
@@ -30,6 +37,21 @@ void ConfigurationServer::init() {
         return;
   }
 
+}
+
+void ConfigurationServer::handleCacheCleaning(){
+  if (SPIFFS.begin()) {
+    Dir dir = SPIFFS.openDir("/gfx");
+    while (dir.next()) {
+      Serial.print(dir.fileName());
+      SPIFFS.remove(dir.fileName());
+    }
+    delay(2000);
+    handleReset();
+  } else {
+    httpServer.sendHeader("Location","/fail");      // Redirect the client to the success page
+    httpServer.send(303);
+  }
 }
 
 // deletes the SPI File System / wifi settings / and performs a reset
@@ -83,17 +105,6 @@ bool ConfigurationServer::loadConfigFile(String filename,bool test) {
 return result;
 }
 
-/*
-String ConfigurationServer::ccuIP() {
-  if (_jsonConfig.success()) {
-    return _jsonConfig["ccu_ip"];
-  } else {
-    Serial.println("Broken JSON Buffer");
-    return "";
-  }
-}
-*/
-
 void ConfigurationServer::initControls(Adafruit_ILI9341 * _tft, GfxUi * _ui,HMDeviceHandler * _deviceHandler, PageManager * pagemanager) {
   Serial.println("ConfigurationServer::initControls");
   int itemNumber = _jsonConfig.size();
@@ -120,6 +131,10 @@ void ConfigurationServer::initControls(Adafruit_ILI9341 * _tft, GfxUi * _ui,HMDe
         result->init(_tft,_ui,_deviceHandler);
         result->ctrl_name = items_name;
         result->setRect(items_x,items_y,items_w,items_h);
+        int tzOffset = item["tzoffset"];
+        result->setTimeZone(tzOffset);
+        int fsize = item["fontsize"];
+        result->fontSize = fsize;
         pagemanager->addControl(result,number+1);
     }
 
@@ -141,26 +156,6 @@ void ConfigurationServer::initControls(Adafruit_ILI9341 * _tft, GfxUi * _ui,HMDe
         pagemanager->addControl(result,number+1);
     }
   }
-}
-
-
-
-void ConfigurationServer::handleCondigForm(){
-  httpServer.send ( 200, "text/html", "<html>\
-    <head>\
-      <title>HM-Touch Device Config</title>\
-      <style>\
-        body { background-color: #cccccc; font-family: Arial, Helvetica, Sans-Serif; Color: #000088; }\
-      </style>\
-    </head>\
-    <body>\
-      <form method=\"post\" enctype=\"multipart/form-data\">\
-          <input type=\"file\" name=\"name\">\
-          <input class=\"button\" type=\"submit\" value=\"Upload\">\
-      </form>\
-    </body>\
-  </html>"
-  );
 }
 
 void ConfigurationServer::handleConfigUpload() {
@@ -238,40 +233,21 @@ void ConfigurationServer::handle() {
   httpServer.handleClient();
 }
 
-void ConfigurationServer::handleNotFound() {
-	String message = "File Not Found\n\n";
-	message += "URI: ";
-	message += httpServer.uri();
-	message += "\nMethod: ";
-	message += ( httpServer.method() == HTTP_GET ) ? "GET" : "POST";
-	message += "\nArguments: ";
-	message += httpServer.args();
-	message += "\n";
 
-	for ( uint8_t i = 0; i < httpServer.args(); i++ ) {
-		message += " " + httpServer.argName ( i ) + ": " + httpServer.arg ( i ) + "\n";
-	}
-
-	httpServer.send ( 404, "text/plain", message );
-}
-
-
-void ConfigurationServer::handleRoot() {
-	httpServer.send ( 200, "text/html", "<html>\
-    <head>\
-      <title>HM-Touch Device</title>\
-      <style>\
-        body { background-color: #cccccc; font-family: Arial, Helvetica, Sans-Serif; Color: #000088; }\
-      </style>\
-    </head>\
-    <body>\
-      <ul>\
-      <li><a href=\"/resetwifi\">Reset Wifi</a></li>\
-      <li><a href=\"/resetdevice\">Reboot Device</a></li>\
-      <li><a href=\"/sysreset\">Reset to factory settings</a></li>\
-      <li><a href=\"/config\">Upload config</a></li>\
-      </ul>\
-    </body>\
-  </html>"
- );
+// We reuse some stuff from WifiManager
+void ConfigurationServer::sendHTMLResponseMessage(String message) {
+  String page = FPSTR(HTTP_HEAD);
+   page.replace("{v}", "HM-Touch Device");
+   page += FPSTR(HTTP_SCRIPT);
+   page += FPSTR(HTTP_STYLE);
+   page += FPSTR(HTTP_HEAD_END);
+   page += "<h1>HM-Touch Device</h1>";
+   page += F("<h3>Configuration</h3>");
+   page += FPSTR(HTTP_CONFIG_HOME);
+   page += "<br />";
+   page += message;
+   page += "<br />";
+   page += FPSTR(HTTP_END);
+   httpServer.sendHeader("Content-Length", String(page.length()));
+   httpServer.send ( 200, "text/html", page);
 }

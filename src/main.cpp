@@ -25,8 +25,8 @@
 #include "WebResource.h"
 
 // Pins for the ILI9341
-#define TFT_DC 15
-#define TFT_CS 0
+#define TFT_DC D1 // HUZZAH 15
+#define TFT_CS D2 // HUZZAH 0
 
 #define TS_MINX 3800
 #define TS_MAXX 100
@@ -36,8 +36,10 @@
 #define PRX_Pin 4
 
 // pins for the touchscreen
-#define STMPE_CS 16
-#define STMPE_IRQ 4
+#define STMPE_CS D3 // HUZZAH 16
+#define STMPE_IRQ D4 // HUZZAH 2
+
+
 
 Adafruit_ILI9341 tft = Adafruit_ILI9341(TFT_CS, TFT_DC);
 Adafruit_STMPE610 ts = Adafruit_STMPE610(STMPE_CS);
@@ -157,15 +159,20 @@ void setup() {
   tft.setTextColor(ILI9341_CYAN);
   ui.drawString(120, 28, "Missing configuration");
   ui.drawString(120, 45, "Please upload via WebIF");
+  ui.drawString(120, 65, "Connect to");
+  ui.drawString(120, 85, hostname);
 }
 }
 
 
 void downloadCallback(String filename, int bytesDownloaded, int bytesTotal) {
   int percentage = 100 * bytesDownloaded / bytesTotal;
+
   if (percentage == 0) {
-    tft.fillRect(20,160,300,20,0x00000);
-    ui.drawString(20, 160, filename);
+    ui.setTextAlignment(CENTER);
+    ui.setTextColor(ILI9341_CYAN, ILI9341_BLACK);
+    tft.fillRect(0,160,320,40,ILI9341_BLACK);
+    ui.drawString(120, 160, filename);
     ui.drawProgressBar(10, 165, 240 - 20, 15, 0, ILI9341_WHITE, ILI9341_BLUE);
   }
   if (percentage % 5 == 0) {

@@ -29,10 +29,9 @@ private :
   const char* update_username = "admin";
   const char* update_password = "admin";
 
-  void handleNotFound();
-  void handleRoot();
   void handleReset();
   void handleConfigUpload();
-  void handleCondigForm();
   void handleSysReset();
+  void handleCacheCleaning();
+  void sendHTMLResponseMessage(String message);
 };
