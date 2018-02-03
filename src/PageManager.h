@@ -12,14 +12,14 @@ class PageManager {
     int currentControl = -1;
     long lastDetailPageUpdate;
     uint16_t voltage;
-    
+
     void init(Adafruit_ILI9341 * _tft, GfxUi * _ui);
-    bool touched(TS_Point point);
+    bool touched(TS_Point point,bool longPress);
     void updatePage();
     void jumpBack();
     void updateVoltage(uint16_t voltage);
     void addControl(HMControl *control, int detailPageId);
-    
+
    private:
      Adafruit_ILI9341 * tft;
 	 GfxUi * ui;
@@ -27,4 +27,3 @@ class PageManager {
      int deviceCount = 0;
 
 };
-

@@ -1,11 +1,11 @@
 #include "PageManager.h"
 
 	void PageManager::init(Adafruit_ILI9341 * _tft, GfxUi * _ui){
-    	ui = _ui;
+    ui = _ui;
 		tft = _tft;
 	}
 
-	bool PageManager::touched(TS_Point point) {
+	bool PageManager::touched(TS_Point point,bool longPress) {
 
 		for (int i=0; i<deviceCount; i++  ) {
 	    	if (currentPage == 0) {
@@ -16,14 +16,13 @@
 						Serial.print(devices[i]->ctrl_name);
 						Serial.print("haz details. jump to page ");
 						Serial.println(devices[i]->onPage);
-
-			    		currentPage = devices[i]->onPage;
-			    		updatePage();
+		    		currentPage = devices[i]->onPage;
+		    		updatePage();
 					} else {
 						// else send touch to control
 						Serial.print("Page Manager Single Touch Control - send touch to");
 						Serial.println(devices[i]->ctrl_name);
-			    		devices[i]->handleTouch(point);
+			    	devices[i]->handleTouch(point);
 			    	}
 			    }
 			} else if (currentPage == devices[i]->onPage) {
@@ -45,6 +44,8 @@
 
     void PageManager::jumpBack(){
 	    if (currentPage != 0) {
+				Serial.print("currentControl ID is ");
+				Serial.println(currentControl);
 
 		    if (currentControl != -1) {
 			    // notify current control
@@ -52,13 +53,13 @@
 			    currentControl = -1;
 		    }
 		    Serial.println("Jump Back to Page 0");
-			tft->fillScreen(0x0000);
-			currentPage = 0;
+				tft->fillScreen(0x0000);
+				currentPage = 0;
 	    	// Reset Last Update to make sure of complete redraw
 	    	for (int i=0; i<deviceCount; i++  ) {
 		    	devices[i]->lastUpdate = 0;
 		    }
-			updatePage();
+				updatePage();
     	}
     }
 
@@ -77,8 +78,10 @@
 			    Serial.print("Detail Page ");
 			    Serial.println(currentPage);
 			    tft->fillScreen(0x0000);
-				devices[i]->drawDetail();
+					devices[i]->willApear(true);
+					devices[i]->drawDetail();
 			    lastDetailPageUpdate = millis();
+					currentControl = i;
 		    }
 		}
     }

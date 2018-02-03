@@ -58,5 +58,3 @@ class GfxUi {
 };
 
 #endif
-
-

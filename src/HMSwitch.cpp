@@ -25,13 +25,13 @@
       	tft->drawBitmap(x+(w/2)-24,y+5,bulb,48,48,0xFFFF);
 
       }
-  
-  
-  
+
+
+
       lastUpdate = millis();
       c_isOn = isOn;
   }
- 
+
  }
 
  byte HMSwitch::handleTouch(TS_Point point) {
@@ -46,4 +46,3 @@
  void HMSwitch::drawDetail() {
 
  }
-

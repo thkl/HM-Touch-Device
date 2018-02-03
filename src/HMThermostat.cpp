@@ -3,10 +3,10 @@
 
  HMThermostat::HMThermostat() {
 	 haszDetail = true;
-	 plusButton = HMInterfaceButton(20,140,90,80,"+",true);
+	 plusButton = HMInterfaceButton(130,140,90,80,"+",true);
    plusButton.setImage("/gfx/btnplus.bmp",25,10);
-   
-	 minusButton = HMInterfaceButton(130,140,90,80,"-",true);
+
+	 minusButton = HMInterfaceButton(20,140,90,80,"-",true);
    minusButton.setImage("/gfx/btnminus.bmp",25,10);
 
 	 boostButton = HMInterfaceButton(73,240,94,80,"");
@@ -95,7 +95,7 @@
 	}
 
 	// Touch at textzone -> back
-	if (rectContainsPoint(x,y,w,h,point)) {
+	if (rectContainsPoint(x,y,w,130,point)) {
 		return TOUCH_HANDLED_BACKBUTTON;
 	}
 
@@ -103,6 +103,7 @@
  }
 
  void HMThermostat::willDissapear() {
+  HMControl::willDissapear();
  	if (n_settemp != -1) {
     Serial.print("Thermostat::willDissapear send temp ");
     Serial.println(n_settemp);
@@ -126,9 +127,9 @@
     uint16_t xpos = ((w/2)-75)+x;
 
     if (n_settemp == 4.5) {
-      ui->drawBmp("/gfx/therm_off.bmp",xpos,y+10);
+      ui->drawBmp("/gfx/therm_off.bmp",xpos,y+20);
     } else {
-      ui->drawBmp("/gfx/therm_" + String((int)n_settemp) + ".bmp",xpos,y+10);
+      ui->drawBmp("/gfx/therm_" + String((int)n_settemp) + ".bmp",xpos,y+20);
     }
 
   	bool boost = deviceHandler->getBoost(adress);
@@ -143,5 +144,5 @@
 	drawButton(minusButton,false);
 
 	drawButton(boostButton,false);
-  ui->drawString(x, y+5,ctrl_name);
+  ui->drawString(x, y + 20 ,ctrl_name);
  }

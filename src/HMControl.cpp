@@ -14,6 +14,7 @@
     w = _w;
     h = _h;
 
+    buttonRect = Rect(x,y,w,h);
    }
 
   void HMControl::updateState() {
@@ -98,5 +99,24 @@
 	  	ui->setTextColor(_ifb.foreColor,_ifb.backColor);
 	  }
       ui->drawString( (_ifb.w /2 )+ _ifb.x , _ifb.y + (_ifb.h/2) + 10, _ifb.caption);
+    }
+  }
+
+  void HMControl::willDissapear() {
+    // Restore Coordinates
+    Serial.println("Restore Coordinates");
+    x = buttonRect.x;
+    y = buttonRect.y;
+    w = buttonRect.w;
+    h = buttonRect.h;
+  }
+
+  void HMControl::willApear(bool fullscreen) {
+    isFullscreen = fullscreen;
+    if (fullscreen) {
+      x = 0;
+      y = 0;
+      w = tft->width();
+      h = tft->height();
     }
   }

@@ -155,6 +155,15 @@ void ConfigurationServer::initControls(Adafruit_ILI9341 * _tft, GfxUi * _ui,HMDe
         result->setRect(items_x,items_y,items_w,items_h);
         pagemanager->addControl(result,number+1);
     }
+
+    if (items_type == "HMDimmer") {
+        HMDimmer *result = new HMDimmer;
+        result->init(_tft,_ui,_deviceHandler);
+        result->ctrl_name = items_name;
+        result->adress = items_adress;
+        result->setRect(items_x,items_y,items_w,items_h);
+        pagemanager->addControl(result,number+1);
+    }
   }
 }
 

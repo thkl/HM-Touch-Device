@@ -58,6 +58,7 @@ const char* host = "hm_touch-webupdate";
 
 long lastUpdate = millis();
 long lastCheck = millis();
+long keyPressStart;
 boolean PRX_ON = false;
 boolean SCR_OFF = false;
 
@@ -148,6 +149,8 @@ void setup() {
   downloadFile("btnboost_on.bmp");
   downloadFile("btnmanu.bmp");
   downloadFile("therm_off.bmp");
+  downloadFile("lightbulb.bmp");
+
 
   tft.fillScreen(ILI9341_BLACK);
   updateStatus();
@@ -226,6 +229,7 @@ configurationserver.handle();
   if (! ts.bufferEmpty()) {
 
       if (ts.touched()) {
+        if (keyPressStart==0) {keyPressStart = millis();}
         lastPoint = ts.getPoint();
         wasTouched = true;
         lastPoint.x = map(lastPoint.x, TS_MINX, TS_MAXX, 0, tft.width());
@@ -237,8 +241,11 @@ configurationserver.handle();
          Serial.print("X = "); Serial.print(lastPoint.x);
          Serial.print("\tY = "); Serial.print(lastPoint.y);
          Serial.print("\tPressure = "); Serial.println(lastPoint.z);
-         pageManager.touched(lastPoint);
-		 wasTouched = false;
+         long tme = millis() - keyPressStart;
+         Serial.print("\tTime = "); Serial.println(tme);
+         pageManager.touched(lastPoint,(tme > 500));
+		     wasTouched = false;
+         keyPressStart = 0;
     }
 
     if ((millis() - lastUpdate > 1000 * UPDATE_INTERVAL_SECS)) {

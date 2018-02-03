@@ -11,10 +11,12 @@ class HMDeviceHandler {
 	bool getBoost(String adress);
 	void setMode(String adress,int mode);
 	int getMode(String adress);
-	
+
     // Switch
     bool isOn(String adress);
     void setOn(String adress,bool _on);
+
+    void setLevel(String adress,double _level) ;
+    double getLevel(String adress);
+
 };
-
-

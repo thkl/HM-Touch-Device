@@ -15,6 +15,14 @@
 #define TOUCH_NOT_HANDLED 0
 #define TOUCH_HANDLED_BACKBUTTON 3
 
+class Rect {
+public:
+	Rect(void) : x(0), y(0), w(0),h(0) {}
+	Rect(int16_t x, int16_t y, int16_t w, int16_t h) : x(x), y(y), w(w), h(h) {}
+	int16_t x, y, w,h;
+};
+
+
 class HMControl {
 
    public:
@@ -23,11 +31,13 @@ class HMControl {
     uint16_t y;
     uint16_t w;
     uint16_t h;
+
     uint16_t color;
     String ctrl_name;
     long lastUpdate = 0;
     uint8_t onPage = 0;
     bool haszDetail = false;
+    bool isFullscreen = false;
     int fontSize;
 
     HMDeviceHandler * deviceHandler;
@@ -50,7 +60,10 @@ class HMControl {
 
     virtual byte handleTouch(TS_Point point){};
     virtual void drawDetail(){};
+    virtual void willApear(bool fullscreen);
+    virtual void willDissapear();
 
-    virtual void willDissapear(){};
+  private:
+    Rect buttonRect;
 
 };

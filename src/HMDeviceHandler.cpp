@@ -35,13 +35,13 @@
   void HMDeviceHandler::setMode(String adress,int mode) {
 	Rega rega;
     if (mode == 0) {
-		rega.runScript(ccuIP,"WriteLine(dom.GetObject('BidCos-RF."+adress+":2.AUTO_MODE').State(1));");  
+		rega.runScript(ccuIP,"WriteLine(dom.GetObject('BidCos-RF."+adress+":2.AUTO_MODE').State(1));");
 	  }
     if (mode == 1) {
-		rega.runScript(ccuIP,"WriteLine(dom.GetObject('BidCos-RF."+adress+":2.MANU_MODE').State(1));");  
+		rega.runScript(ccuIP,"WriteLine(dom.GetObject('BidCos-RF."+adress+":2.MANU_MODE').State(1));");
 	  }
     if (mode == 3) {
-		rega.runScript(ccuIP,"WriteLine(dom.GetObject('BidCos-RF."+adress+":2.BOOST_MODE').State(1));");  
+		rega.runScript(ccuIP,"WriteLine(dom.GetObject('BidCos-RF."+adress+":2.BOOST_MODE').State(1));");
 	  }
   }
 
@@ -58,10 +58,18 @@
     String result = rega.runScript(ccuIP,"WriteLine(dom.GetObject('BidCos-RF."+adress+".STATE').Value());");
     if (result.indexOf("true")>-1) {
       return true;
-    } 
+    }
     return false;
   }
 
-    
+  // Dimmer
+  void HMDeviceHandler::setLevel(String adress,double _level) {
+    Rega rega;
+    rega.runScript(ccuIP,"WriteLine(dom.GetObject('BidCos-RF."+adress+".LEVEL').State(" + _level + "));");
+  }
 
-
+  double HMDeviceHandler::getLevel(String adress) {
+    Rega rega;
+    String result = rega.runScript(ccuIP,"WriteLine(dom.GetObject('BidCos-RF."+adress+".LEVEL').Value());");
+    return result.toFloat();
+  }
