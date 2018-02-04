@@ -150,9 +150,14 @@ void setup() {
   downloadFile("btnmanu.bmp");
   downloadFile("therm_off.bmp");
   downloadFile("lightbulb.bmp");
-//  SPIFFS.remove("/gfx/btnempty.bmp");
+
+
+  //SPIFFS.remove("/gfx/btn_lightbulb_off.bmp");
+  downloadFile("lightbulb_off.bmp");
   downloadFile("btnempty.bmp");
 
+  downloadFile("btn_lightbulb_off.bmp");
+  downloadFile("btn_lightbulb_on.bmp");
 
   tft.fillScreen(ILI9341_BLACK);
   updateStatus();

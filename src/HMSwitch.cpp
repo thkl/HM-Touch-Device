@@ -8,26 +8,16 @@ void HMSwitch::updateState() {
 
   if ((lastUpdate == 0) || (c_isOn != isOn)) {
     tft->fillRect(frame.x,frame.y,frame.w,frame.h,0x0000);
-    tft->drawRect(frame.x,frame.y,frame.w,frame.h,0xFFFF);
-    tft->setFont(&Dialog_plain_12);
-    ui->setTextAlignment(RIGHT);
-
     if (isOn) {
-      tft->fillRect(frame.x,frame.y,frame.w,frame.h,0xFFFF);
-      tft->setTextColor(0x0000);
-      ui->setTextColor(0x0000, 0xFFFF);
-      ui->drawString(frame.x+frame.w-10, frame.y+frame.h-14 , ctrl_name);
-      tft->drawBitmap(frame.x+(frame.w/2)-24,frame.y+5,bulb,48,48,0x0000);
+      ui->drawBmp("/gfx/btn_lightbulb_on.bmp",frame.x,frame.y);
     } else {
-      tft->setTextColor(0xFFFF);
-      ui->setTextColor(0xFFFF, ILI9341_BLACK);
-      ui->drawString(frame.x+frame.w-10, frame.y+frame.h-14 , ctrl_name);
-      tft->drawBitmap(frame.x+(frame.w/2)-24,frame.y+5,bulb,48,48,0xFFFF);
-
+      ui->drawBmp("/gfx/btn_lightbulb_off.bmp",frame.x,frame.y);
     }
-
-
-
+    tft->setFont(&Dialog_plain_12);
+    tft->setTextColor(0xFFFF);
+    ui->setTextColor(0xFFFF, ILI9341_BLACK);
+    ui->setTextAlignment(CENTER);
+    ui->drawString(frame.x+(frame.w/2)-3, frame.y+frame.h, ctrl_name);
     lastUpdate = millis();
     c_isOn = isOn;
   }

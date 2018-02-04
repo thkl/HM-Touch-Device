@@ -10,7 +10,8 @@ HMClock::HMClock() {
 
 
  void HMClock::updateState() {
- 	  	timeClient.updateTime();
+			tft->drawRect(frame.x,frame.y,frame.w,frame.h,ILI9341_BLACK);
+			timeClient.updateTime();
 			tft->setTextColor(0xFFFF);
 			ui->setTextColor(0xFFFF, ILI9341_BLACK);
 			applyFont();

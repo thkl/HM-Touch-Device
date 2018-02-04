@@ -30,23 +30,17 @@ void HMDimmer::updateState() {
 
   if ((lastUpdate == 0) || (_level != level)) {
     tft->fillRect(frame.x,frame.y,frame.w,frame.h,0x0000);
-    tft->drawRect(frame.x,frame.y,frame.w,frame.h,0xFFFF);
-    tft->setFont(&Dialog_plain_12);
-    ui->setTextAlignment(RIGHT);
-
     if (level > 0) {
-      tft->fillRect(frame.x,frame.y,frame.w,frame.h,0xFFFF);
-      tft->setTextColor(0x0000);
-      ui->setTextColor(0x0000, 0xFFFF);
-      ui->drawString(frame.x+frame.w-10,frame.y+frame.h-14 , ctrl_name);
-      tft->drawBitmap(frame.x+(frame.w/2)-24,frame.y+5,bulb,48,48,0x0000);
+      ui->drawBmp("/gfx/btn_lightbulb_on.bmp",frame.x,frame.y);
     } else {
-      tft->setTextColor(0xFFFF);
-      ui->setTextColor(0xFFFF, ILI9341_BLACK);
-      ui->drawString(frame.x+frame.w-10, frame.y+frame.h-14 , ctrl_name);
-      tft->drawBitmap(frame.x+(frame.w/2)-24,frame.y+5,bulb,48,48,0xFFFF);
-
+      ui->drawBmp("/gfx/btn_lightbulb_off.bmp",frame.x,frame.y);
     }
+    tft->setFont(&Dialog_plain_12);
+    tft->setTextColor(0xFFFF);
+    ui->setTextColor(0xFFFF, ILI9341_BLACK);
+    ui->setTextAlignment(CENTER);
+    ui->drawString(frame.x+(frame.w/2)-3, frame.y+frame.h, ctrl_name);
+    lastUpdate = millis();
 
     lastUpdate = millis();
     _level = level;
@@ -56,8 +50,11 @@ void HMDimmer::updateState() {
 
 void HMDimmer::drawDetail() {
   uint16_t xpos = ((frame.w/2)-50);
-  ui->drawBmp("/gfx/lightbulb.bmp",xpos,frame.y+30);
-  // draw + / - Buttons
+  if (_level == 0) {
+    ui->drawBmp("/gfx/lightbulb_off.bmp",xpos,frame.y+30);
+  } else {
+    ui->drawBmp("/gfx/lightbulb.bmp",xpos,frame.y+30);
+  }  // draw + / - Buttons
   drawButton(plusButton,false);
   drawButton(minusButton,false);
   drawButton(ButtonOff,false);
@@ -71,7 +68,7 @@ void HMDimmer::drawDetail() {
   ui->setTextAlignment(LEFT);
 
   xpos = frame.x+(frame.w / 2) + 20;
-  tft->fillRect(xpos,frame.y + 100,frame.w-xpos,20,0x0000);
+  tft->fillRect(xpos,frame.y + 100,frame.w-xpos+1,20,0x0000);
   if (_level == 0) {
     ui->drawString(xpos, frame.y + 120 ,String("Off"));
   } else {

@@ -13,7 +13,7 @@
    }
 
   void HMControl::updateState() {
-      tft->drawRect(frame.x,frame.y,frame.w,frame.h,0xFFFF);
+      tft->drawRect(frame.x,frame.y,frame.w,frame.h,ILI9341_BLACK);
   }
 
   void HMControl::applyFont(){
