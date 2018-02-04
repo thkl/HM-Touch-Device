@@ -130,7 +130,7 @@ void ConfigurationServer::initControls(Adafruit_ILI9341 * _tft, GfxUi * _ui,HMDe
         HMClock *result = new HMClock;
         result->init(_tft,_ui,_deviceHandler);
         result->ctrl_name = items_name;
-        result->setRect(items_x,items_y,items_w,items_h);
+        result->setRect(Rect(items_x,items_y,items_w,items_h));
         int tzOffset = item["tzoffset"];
         result->setTimeZone(tzOffset);
         int fsize = item["fontsize"];
@@ -143,7 +143,7 @@ void ConfigurationServer::initControls(Adafruit_ILI9341 * _tft, GfxUi * _ui,HMDe
         result->init(_tft,_ui,_deviceHandler);
         result->ctrl_name = items_name;
         result->adress = items_adress;
-        result->setRect(items_x,items_y,items_w,items_h);
+        result->setRect(Rect(items_x,items_y,items_w,items_h));
         pagemanager->addControl(result,number+1);
     }
 
@@ -152,7 +152,7 @@ void ConfigurationServer::initControls(Adafruit_ILI9341 * _tft, GfxUi * _ui,HMDe
         result->init(_tft,_ui,_deviceHandler);
         result->ctrl_name = items_name;
         result->adress = items_adress;
-        result->setRect(items_x,items_y,items_w,items_h);
+        result->setRect(Rect(items_x,items_y,items_w,items_h));
         pagemanager->addControl(result,number+1);
     }
 
@@ -161,7 +161,7 @@ void ConfigurationServer::initControls(Adafruit_ILI9341 * _tft, GfxUi * _ui,HMDe
         result->init(_tft,_ui,_deviceHandler);
         result->ctrl_name = items_name;
         result->adress = items_adress;
-        result->setRect(items_x,items_y,items_w,items_h);
+        result->setRect(Rect(items_x,items_y,items_w,items_h));
         pagemanager->addControl(result,number+1);
     }
   }

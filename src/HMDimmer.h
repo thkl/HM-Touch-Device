@@ -13,4 +13,8 @@ class HMDimmer: public HMControl {
     double _level;
     HMInterfaceButton plusButton;
     HMInterfaceButton minusButton;
+
+    HMInterfaceButton ButtonOff;
+    HMInterfaceButton Button50;
+    HMInterfaceButton ButtonOn;
 };
