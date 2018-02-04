@@ -12,6 +12,7 @@ HMClock::HMClock() {
  void HMClock::updateState() {
  	  	timeClient.updateTime();
 			tft->setTextColor(0xFFFF);
+			ui->setTextColor(0xFFFF, ILI9341_BLACK);
 			applyFont();
       ui->setTextAlignment(RIGHT);
       String time = timeClient.getHours() + ":" + timeClient.getMinutes();

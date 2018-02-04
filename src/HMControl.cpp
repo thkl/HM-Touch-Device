@@ -83,6 +83,7 @@
       }
       tft->setFont(&DejaVu_Sans_12);
       ui->setTextAlignment(CENTER);
+      ui->setTextColor(_ifb.foreColor, _ifb.backColor);
       ui->drawString( _ifb.frame.x + _ifb.imgPosition.x + _ifb.textOffset.x, _ifb.frame.y + (_ifb.frame.h/2) + _ifb.textOffset.y - 3 , _ifb.caption);
     }
 	}

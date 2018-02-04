@@ -55,8 +55,6 @@ void HMDimmer::updateState() {
 
 
 void HMDimmer::drawDetail() {
-  ui->setTextColor(0xFFFF, ILI9341_BLACK);
-  ui->setTextAlignment(LEFT);
   uint16_t xpos = ((frame.w/2)-50);
   ui->drawBmp("/gfx/lightbulb.bmp",xpos,frame.y+30);
   // draw + / - Buttons
@@ -65,10 +63,71 @@ void HMDimmer::drawDetail() {
   drawButton(ButtonOff,false);
   drawButton(Button50,false);
   drawButton(ButtonOn,false);
+  tft->setFont(&ArialRoundedMTBold_14);
+  ui->setTextColor(0xFFFF, ILI9341_BLACK);
+  ui->setTextAlignment(LEFT);
   ui->drawString(frame.x, frame.y + 20 ,ctrl_name);
+  tft->setFont(&DejaVu_Sans_Bold_18);
+  ui->setTextAlignment(LEFT);
+
+  xpos = frame.x+(frame.w / 2) + 20;
+  tft->fillRect(xpos,frame.y + 100,frame.w-xpos,20,0x0000);
+  if (_level == 0) {
+    ui->drawString(xpos, frame.y + 120 ,String("Off"));
+  } else {
+    ui->drawString(xpos, frame.y + 120 ,String(int(_level*100)) + " %");
+  }
 }
 
 byte HMDimmer::handleTouch(TS_Point point) {
+  // Check +
+  if (buttonContainsPoint(plusButton,point)) {
+    drawButton(plusButton,true);
+    if (_level <= 1) {
+      _level = _level + 0.1;
+      drawDetail();
+      deviceHandler->setLevel(adress,_level);
+      return TOUCH_HANDLED;
+    }
+  }
+
+  // Check -
+  if (buttonContainsPoint(minusButton,point)) {
+    drawButton(minusButton,true);
+    if (_level > 0) {
+      _level = _level - 0.1;
+      drawDetail();
+      deviceHandler->setLevel(adress,_level);
+      return TOUCH_HANDLED;
+    }
+  }
+
+  // Check Off
+  if (buttonContainsPoint(ButtonOff,point)) {
+    drawButton(ButtonOff,true);
+    _level = 0;
+    drawDetail();
+    deviceHandler->setLevel(adress,_level);
+    return TOUCH_HANDLED;
+  }
+
+  // Check 50
+  if (buttonContainsPoint(Button50,point)) {
+    drawButton(Button50,true);
+    _level = 0.5;
+    drawDetail();
+    deviceHandler->setLevel(adress,_level);
+    return TOUCH_HANDLED;
+  }
+
+  // Check 100
+  if (buttonContainsPoint(ButtonOn,point)) {
+    drawButton(ButtonOn,true);
+    _level = 1;
+    drawDetail();
+    deviceHandler->setLevel(adress,_level);
+    return TOUCH_HANDLED;
+  }
 
   if (rectContainsPoint(Rect(frame.x,frame.y,frame.w,130),point)) {
     return TOUCH_HANDLED_BACKBUTTON;

@@ -99,7 +99,7 @@ void setup() {
   tft.setFont(&ArialRoundedMTBold_14);
   ui.setTextColor(ILI9341_CYAN, ILI9341_BLACK);
   ui.setTextAlignment(CENTER);
-  ui.drawString(120, 160, "Connecting to WiFi");
+  ui.drawString(120, 160, String("Connecting to WiFi"));
 
   // Uncomment for testing wifi manager
   //wifiManager.resetSettings();
@@ -162,9 +162,9 @@ void setup() {
   ui.setTextAlignment(CENTER);
   tft.setFont(&ArialRoundedMTBold_14);
   tft.setTextColor(ILI9341_CYAN);
-  ui.drawString(120, 28, "Missing configuration");
-  ui.drawString(120, 45, "Please upload via WebIF");
-  ui.drawString(120, 65, "Connect to");
+  ui.drawString(120, 28, String("Missing configuration"));
+  ui.drawString(120, 45, String("Please upload via WebIF"));
+  ui.drawString(120, 65, String("Connect to"));
   ui.drawString(120, 85, hostname);
 }
 }
@@ -189,7 +189,7 @@ void downloadCallback(String filename, int bytesDownloaded, int bytesTotal) {
 }
 
 void downloadFile(String fileName) {
-  ui.drawString(120, 45, "Downloading ...");
+  ui.drawString(120, 45, String("Downloading ..."));
   webResource.downloadFile("https://raw.githubusercontent.com/thkl/HM-Touch-Device/master/src/images/" + fileName, "/gfx/" + fileName, _downloadCallback,"CCAA484866460E91532C9C7C232AB1744D299D33");
 }
 
@@ -276,12 +276,12 @@ void configModeCallback (WiFiManager *myWiFiManager) {
   ui.setTextAlignment(CENTER);
   tft.setFont(&ArialRoundedMTBold_14);
   tft.setTextColor(ILI9341_CYAN);
-  ui.drawString(120, 28, "Wifi Manager");
-  ui.drawString(120, 42, "Please connect to AP");
+  ui.drawString(120, 28, String("Wifi Manager"));
+  ui.drawString(120, 42, String("Please connect to AP"));
   tft.setTextColor(ILI9341_WHITE);
   ui.drawString(120, 56, myWiFiManager->getConfigPortalSSID());
   tft.setTextColor(ILI9341_CYAN);
-  ui.drawString(120, 70, "To setup Wifi Configuration");
+  ui.drawString(120, 70, String("To setup Wifi Configuration"));
 }
 
 
